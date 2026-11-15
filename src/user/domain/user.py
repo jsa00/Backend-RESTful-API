@@ -139,6 +139,21 @@ class User:
         self.deleted_at = now
         self.modified_at = now
 
+    def grant_admin(self) -> None:
+        """관리자 권한 부여 (서버 관리 스크립트 전용, API로는 노출하지 않음)"""
+        if self.resign:
+            raise BadRequestException(
+                message="탈퇴한 회원은 관리자로 지정할 수 없습니다.",
+                error_code="USER_ALREADY_WITHDRAWN",
+            )
+        if self.role == "ADMIN":
+            raise BadRequestException(
+                message="이미 관리자인 회원입니다.",
+                error_code="ALREADY_ADMIN",
+            )
+        self.role = "ADMIN"
+        self.modified_at = datetime.now(timezone.utc)
+
     # 규칙 검증 메서드
     # 규칙을 어기면 필드별 오류를 담은 ValidationException(422)을 발생시킨다.
 

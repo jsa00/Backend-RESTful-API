@@ -1,0 +1,19 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# 환경변수 (예시 파일만 커밋)
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/

@@ -44,4 +44,4 @@ def init_models() -> None:
     # 도메인 모델을 만들면 여기서 import 해야 create_all 대상에 포함된다.
     import user.infrastructure.models  # noqa: F401  회원
     import auth.infrastructure.models  # noqa: F401  토큰 블랙리스트
-    # import board.infrastructure.sqlalchemy.models
+    import board.infrastructure.sqlalchemy.models  # noqa: F401  게시판

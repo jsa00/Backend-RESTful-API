@@ -12,20 +12,13 @@ Swagger 문서는 실제 실행 함수가 아니라 라우터에 선언된 place
 여기에 선언해야 해당 API에 자물쇠가 붙고 "Try it out"이 토큰을 헤더에 실어 보낸다.
 """
 
-from typing import Annotated
-from fastapi import Depends
-from fastapi.security import HTTPAuthorizationCredentials
-
-from shared.core.security import bearer_scheme
+from shared.core.security import BearerCredentials
 from user.application.service import UserService
 from user.domain.repository import UserRepository
 from user.domain.user import User
 
 # 주입 명세(placeholder)
 # 실제 구현체는 wiring에서 app.dependency_overrides로 바인딩한다.
-
-# Swagger 문서용 토큰 선언 (값은 쓰지 않음)
-BearerCredentials = Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)]
 
 
 def provide_user_service() -> UserService:

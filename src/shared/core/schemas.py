@@ -1,7 +1,17 @@
+"""
+공통 응답 스키마
+
+모든 API가 같은 모양으로 응답하도록 감싸는 APIResponse를 정의한다.
+- 성공: APIResponse.ok(data=...)    → success=True, code="OK", data에 결과
+- 실패: APIResponse.fail(message=...) → success=False, code=에러 코드, errors에 세부 내용
+Generic[T]라서 APIResponse[UserResponse]처럼 data의 타입을 지정하면 Swagger 문서에도 그대로 표시된다.
+"""
+
 from datetime import datetime, timezone
 from typing import Any, Generic, TypeVar
 from pydantic import BaseModel, Field
 
+# data 필드에 들어갈 응답 데이터 타입
 T = TypeVar("T")
 
 
@@ -45,7 +55,7 @@ class APIResponse(BaseModel, Generic[T]):
         code: str = "BAD_REQUEST",
         errors: dict[str, list[str]] | list[str] | Any | None = None,
     ) -> "APIResponse[None]":
-        """실패 응답 생성"""
+        """실패 응답 생성 (전역 예외 처리기에서 사용)"""
         return cls(
             success=False,
             code=code,

@@ -6,6 +6,7 @@ HTTP 요청을 받아 스키마로 검증하고 → UserService를 호출하고 
 
 | 메서드 | 경로                    | 기능          | 인증          |
 | POST   | /v1/users               | 회원가입      | 불필요        |
+| GET    | /v1/users/me            | 내 정보 조회  | 로그인 필요   |
 | PATCH  | /v1/users/me/password   | 비밀번호 변경 | 로그인 필요   |
 """
 
@@ -47,6 +48,20 @@ async def sign_up(
     )
 
 
+@router.get(
+    "/me",
+    response_model=APIResponse[UserResponse],
+    status_code=status.HTTP_200_OK,
+    summary="내 정보 조회",
+    description="액세스 토큰의 주인인 로그인 회원 정보를 조회합니다.",
+)
+async def get_me(
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    # 토큰 검증·회원 조회는 get_current_user가 끝낸 상태라 그대로 응답한다.
+    return APIResponse.ok(data=UserResponse.model_validate(current_user))
+
+
 @router.patch(
     "/me/password",
     response_model=APIResponse[None],
@@ -59,7 +74,7 @@ async def change_password(
     current_user: Annotated[User, Depends(get_current_user)],
     user_service: Annotated[UserService, Depends(provide_user_service)],
 ):
-    # current_user: 토큰에서 찾아낸 로그인 회원 (Auth 단계에서 연결)
+    # current_user: 토큰에서 찾아낸 로그인 회원 (wiring/auth.py에서 연결)
     # 경로에 user_id를 받지 않고 토큰의 회원 본인으로만 처리한다.
     await user_service.change_password(
         user_id=current_user.id,

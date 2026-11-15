@@ -40,7 +40,7 @@ def wire_user_dependencies(app: FastAPI) -> None:
     """회원 의존성 바인딩"""
     # dependency_overrides[자리] = 실제 함수
     # 라우터가 Depends(provide_user_service)를 쓰면 create_user_service가 대신 실행된다.
-    # get_current_user·get_optional_user·require_admin은 토큰 검증이 필요해 Auth 단계에서 연결한다.
+    # get_current_user·get_optional_user·require_admin은 토큰 검증이 필요해 wiring/auth.py에서 연결한다.
     app.dependency_overrides.update(
         {
             provide_user_repository: create_user_repository,

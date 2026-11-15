@@ -32,6 +32,7 @@ from board.presentation.schemas import (
     UpdatePostRequest,
 )
 from shared.core.exceptions import ValidationException
+from shared.core.openapi import OPTIONAL_AUTH_ERRORS, REQUEST_ERRORS, VALIDATION_ERRORS, error_responses
 from shared.core.schemas import APIResponse
 
 router = APIRouter(prefix="/v1", tags=["Posts"])
@@ -48,6 +49,7 @@ PostServiceDep = Annotated[PostService, Depends(provide_post_service)]
     response_model=APIResponse[PostDetailResponse],
     status_code=status.HTTP_201_CREATED,
     summary="게시글 작성",
+    responses=error_responses({403: ["POST_WRITE_DENIED"], 404: ["BOARD_NOT_FOUND"]}, OPTIONAL_AUTH_ERRORS, VALIDATION_ERRORS),
     description=(
         "게시판의 글쓰기 권한(edit_role)이 있어야 합니다. "
         "로그인 회원은 토큰으로 작성자가 정해지고, 비회원은 guest_name·guest_password가 필수입니다."
@@ -89,6 +91,7 @@ async def write_post(
     "/boards/{board_id}/posts",
     response_model=APIResponse[PostPageResponse],
     summary="게시글 목록 (페이징·검색)",
+    responses=error_responses({403: ["POST_LIST_DENIED"], 404: ["BOARD_NOT_FOUND"]}, OPTIONAL_AUTH_ERRORS, REQUEST_ERRORS),
     description=(
         "게시판의 목록 보기 권한(list_role)이 있어야 합니다. 최신순으로 정렬하며, "
         "page_size를 생략하면 게시판 설정값을 사용합니다. 검색은 대소문자를 구분하지 않는 부분 일치입니다."
@@ -118,6 +121,7 @@ async def list_posts(
     "/posts/{post_id}",
     response_model=APIResponse[PostDetailResponse],
     summary="게시글 상세",
+    responses=error_responses({403: ["POST_VIEW_DENIED"], 404: ["POST_NOT_FOUND", "BOARD_NOT_FOUND"]}, OPTIONAL_AUTH_ERRORS, REQUEST_ERRORS),
     description="게시판의 글 보기 권한(view_role)이 있어야 합니다. 조회할 때마다 조회수가 1 올라갑니다.",
 )
 async def get_post(
@@ -133,6 +137,7 @@ async def get_post(
     "/posts/{post_id}",
     response_model=APIResponse[PostDetailResponse],
     summary="게시글 수정",
+    responses=error_responses({403: ["NOT_POST_OWNER", "POST_EDIT_DENIED"], 404: ["POST_NOT_FOUND", "BOARD_NOT_FOUND"]}, OPTIONAL_AUTH_ERRORS, VALIDATION_ERRORS),
     description=(
         "게시판 글쓰기 권한이 있어야 하며, 회원 글은 작성자 본인·관리자만, "
         "비회원 글은 guest_password가 맞을 때(또는 관리자)만 수정할 수 있습니다."
@@ -160,6 +165,7 @@ async def update_post(
     "/posts/{post_id}",
     response_model=APIResponse[None],
     summary="게시글 삭제",
+    responses=error_responses({403: ["NOT_POST_OWNER", "POST_EDIT_DENIED"], 404: ["POST_NOT_FOUND", "BOARD_NOT_FOUND"]}, OPTIONAL_AUTH_ERRORS, REQUEST_ERRORS),
     description=(
         "게시글을 소프트 삭제합니다. 권한 규칙은 수정과 같으며, "
         "비회원 글은 X-Guest-Password 헤더에 작성 시 등록한 비밀번호를 담아 보냅니다."

@@ -63,3 +63,16 @@ class APIResponse(BaseModel, Generic[T]):
             errors=errors,
             data=None,
         )
+
+
+class ErrorResponse(BaseModel):
+    """실패 응답 형식 (Swagger 에러 응답 문서용, 실제 응답은 APIResponse.fail로 만든다.)"""
+
+    success: bool = Field(False, description="항상 false")
+    code: str = Field(description="에러 코드 (예: TOKEN_REQUIRED, POST_NOT_FOUND)")
+    message: str = Field(description="에러 설명")
+    errors: dict[str, list[str]] | None = Field(
+        None, description="필드별 오류 목록 (422 유효성 검사 실패 시에만 값 있음)"
+    )
+    data: None = Field(None, description="항상 null")
+    responded_at: datetime = Field(description="응답 날짜시간(UTC)")

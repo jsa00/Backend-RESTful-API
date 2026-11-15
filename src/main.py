@@ -21,6 +21,7 @@ from shared.core.models import Base, init_models
 from user.presentation.routers.v1.router import router as user_router
 from auth.presentation.routers.v1.router import router as auth_router
 from board.presentation.routers.v1.board_router import router as board_router
+from board.presentation.routers.v1.post_router import router as post_router
 
 logger = get_logger("app.main")
 
@@ -62,3 +63,4 @@ wire_dependencies(app)
 app.include_router(user_router)
 app.include_router(auth_router)
 app.include_router(board_router)
+app.include_router(post_router)

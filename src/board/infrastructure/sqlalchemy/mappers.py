@@ -1,13 +1,15 @@
 """
 도메인 엔티티 <-> ORM 모델 변환기 (인프라 계층)
 
-게시판 엔티티는 권한을 Authority 값 객체 하나로 묶어 갖지만,
-테이블에는 권한 5개가 각각 컬럼으로 펼쳐져 있어서 변환 코드를 한곳에 모았다.
+- BoardMapper: 엔티티는 권한을 Authority 값 객체 하나로 묶어 갖지만,
+  테이블에는 권한 5개가 각각 컬럼으로 펼쳐져 있다.
+- PostMapper: 엔티티의 값 객체(BoardInfo·Author·GuestPassword) <-> 테이블의 평평한 컬럼
 """
 
 from board.domain.board import Authority, Board
 from board.domain.enums import Role
-from board.infrastructure.sqlalchemy.models import BoardModel
+from board.domain.post import Author, BoardInfo, GuestPassword, Post
+from board.infrastructure.sqlalchemy.models import BoardModel, PostModel
 
 
 class BoardMapper:
@@ -52,3 +54,35 @@ class BoardMapper:
             "comment_list_role": authority.comment_list_role.value,
             "comment_edit_role": authority.comment_edit_role.value,
         }
+
+
+class PostMapper:
+    """Post 엔티티 <-> PostModel 변환"""
+
+    @staticmethod
+    def to_domain(model: PostModel) -> Post:
+        """ORM 모델 -> 도메인 엔티티 (board 관계에서 게시판 이름을 함께 채움)"""
+        return Post(
+            post_id=model.post_id,
+            board_info=BoardInfo(board_id=model.board_id, board_name=model.board.board_name),
+            title=model.title,
+            content=model.content,
+            author=Author(author_name=model.author_name, author_id=model.author_id),
+            guest_password=GuestPassword(model.guest_password) if model.guest_password else None,
+            view_count=model.view_count,
+            created_at=model.created_at,
+            modified_at=model.modified_at,
+            deleted_at=model.deleted_at,
+        )
+
+    @staticmethod
+    def to_model(domain: Post) -> PostModel:
+        """도메인 엔티티 -> 신규 ORM 모델"""
+        return PostModel(
+            board_id=domain.board_info.board_id,
+            title=domain.title,
+            content=domain.content,
+            author_name=domain.author.author_name,
+            author_id=domain.author.author_id,
+            guest_password=domain.guest_password.hashed_value if domain.guest_password else None,
+        )

@@ -29,3 +29,13 @@ class Role(StrEnum):
         if isinstance(required_role, str):
             required_role = Role(required_role)
         return self.level >= required_role.level
+
+
+class PostSearchType(StrEnum):
+    """게시글 검색 대상 (개인정보 보호를 위해 작성자 이메일 검색은 제공하지 않음)"""
+
+    ALL = "ALL"  # 제목 + 내용 + 작성자 이름
+    TITLE = "TITLE"
+    CONTENT = "CONTENT"
+    TITLE_CONTENT = "TITLE_CONTENT"
+    AUTHOR_NAME = "AUTHOR_NAME"

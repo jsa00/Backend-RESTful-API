@@ -21,6 +21,7 @@ from board.presentation.dependencies import (
 )
 from board.presentation.schemas import BoardResponse, CreateBoardRequest, UpdateBoardRequest
 from shared.core.exceptions import ForbiddenException
+from shared.core.openapi import ADMIN_ERRORS, OPTIONAL_AUTH_ERRORS, REQUEST_ERRORS, VALIDATION_ERRORS, error_responses
 from shared.core.schemas import APIResponse
 
 router = APIRouter(prefix="/v1/boards", tags=["Boards"])
@@ -33,6 +34,7 @@ BoardIdPath = Annotated[str, Path(description="게시판 ID", examples=["freetal
     response_model=APIResponse[BoardResponse],
     status_code=status.HTTP_201_CREATED,
     summary="게시판 생성 (관리자)",
+    responses=error_responses(ADMIN_ERRORS, {409: ["BOARD_ID_ALREADY_EXISTS"]}, VALIDATION_ERRORS),
     description="게시판 ID·이름·권한·목록 노출 개수를 정해 새 게시판을 만듭니다.",
 )
 async def create_board(
@@ -53,6 +55,7 @@ async def create_board(
     "",
     response_model=APIResponse[list[BoardResponse]],
     summary="게시판 목록",
+    responses=error_responses({403: ["ADMIN_PERMISSION_DENIED"]}, OPTIONAL_AUTH_ERRORS, REQUEST_ERRORS),
     description="게시판 목록을 생성 순서대로 조회합니다. 삭제된 게시판까지 보려면 관리자 권한이 필요합니다.",
 )
 async def list_boards(
@@ -74,6 +77,7 @@ async def list_boards(
     "/{board_id}",
     response_model=APIResponse[BoardResponse],
     summary="게시판 단건 조회",
+    responses=error_responses({404: ["BOARD_NOT_FOUND"]}, REQUEST_ERRORS),
     description="게시판 설정(이름·권한·목록 노출 개수)을 조회합니다. 삭제된 게시판은 404입니다.",
 )
 async def get_board(
@@ -88,6 +92,7 @@ async def get_board(
     "/{board_id}",
     response_model=APIResponse[BoardResponse],
     summary="게시판 설정 수정 (관리자)",
+    responses=error_responses(ADMIN_ERRORS, {404: ["BOARD_NOT_FOUND"]}, VALIDATION_ERRORS),
     description="게시판 이름·목록 노출 개수·권한을 수정합니다. authority를 생략하면 기존 권한을 유지합니다.",
 )
 async def update_board(
@@ -109,6 +114,7 @@ async def update_board(
     "/{board_id}",
     response_model=APIResponse[None],
     summary="게시판 삭제 (관리자)",
+    responses=error_responses(ADMIN_ERRORS, {404: ["BOARD_NOT_FOUND"]}, REQUEST_ERRORS),
     description="게시판을 소프트 삭제합니다. 삭제된 게시판의 ID는 다시 사용할 수 없습니다.",
 )
 async def delete_board(

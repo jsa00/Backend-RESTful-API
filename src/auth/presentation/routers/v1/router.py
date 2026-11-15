@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, status
 from auth.application.service import AuthService
 from auth.presentation.dependencies import provide_auth_service, require_bearer_token
 from auth.presentation.schemas import LoginRequest, TokenResponse
+from shared.core.openapi import VALIDATION_ERRORS, error_responses
 from shared.core.schemas import APIResponse
 
 router = APIRouter(prefix="/v1/auth", tags=["Auth"])
@@ -22,6 +23,7 @@ router = APIRouter(prefix="/v1/auth", tags=["Auth"])
     response_model=APIResponse[TokenResponse],
     status_code=status.HTTP_200_OK,
     summary="로그인",
+    responses=error_responses({401: ["INVALID_CREDENTIALS"]}, VALIDATION_ERRORS),
     description="이메일과 비밀번호를 확인하고 JWT 액세스 토큰(HS512)을 발급합니다.",
 )
 async def login(
@@ -44,6 +46,7 @@ async def login(
     response_model=APIResponse[None],
     status_code=status.HTTP_200_OK,
     summary="로그아웃",
+    responses=error_responses({401: ["TOKEN_REQUIRED", "INVALID_TOKEN", "TOKEN_EXPIRED", "TOKEN_REVOKED"]}),
     description="현재 액세스 토큰을 블랙리스트에 등록해 남은 유효기간 동안 사용할 수 없게 합니다.",
 )
 async def logout(

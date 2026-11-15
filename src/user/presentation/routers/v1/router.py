@@ -13,6 +13,7 @@ HTTP 요청을 받아 스키마로 검증하고 → UserService를 호출하고 
 from typing import Annotated
 from fastapi import APIRouter, Depends, status
 
+from shared.core.openapi import AUTH_ERRORS, VALIDATION_ERRORS, error_responses
 from shared.core.schemas import APIResponse
 from user.application.service import UserService
 from user.domain.user import User
@@ -28,6 +29,7 @@ router = APIRouter(prefix="/v1/users", tags=["Users"])
     response_model=APIResponse[UserResponse],
     status_code=status.HTTP_201_CREATED,
     summary="회원가입",
+    responses=error_responses({409: ["EMAIL_ALREADY_EXISTS"]}, VALIDATION_ERRORS),
     description="이메일·이름·비밀번호로 새 회원을 등록합니다. 가입한 회원의 권한은 USER입니다.",
 )
 async def sign_up(
@@ -53,6 +55,7 @@ async def sign_up(
     response_model=APIResponse[UserResponse],
     status_code=status.HTTP_200_OK,
     summary="내 정보 조회",
+    responses=error_responses(AUTH_ERRORS),
     description="액세스 토큰의 주인인 로그인 회원 정보를 조회합니다.",
 )
 async def get_me(
@@ -67,6 +70,7 @@ async def get_me(
     response_model=APIResponse[None],
     status_code=status.HTTP_200_OK,
     summary="비밀번호 변경",
+    responses=error_responses({400: ["INVALID_OLD_PASSWORD", "SAME_PASSWORD"]}, AUTH_ERRORS, VALIDATION_ERRORS),
     description="로그인한 회원 본인의 비밀번호를 변경합니다. 현재 비밀번호 확인이 필요합니다.",
 )
 async def change_password(

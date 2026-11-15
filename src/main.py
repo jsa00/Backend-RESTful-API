@@ -18,6 +18,7 @@ from shared.core.database import close_db, engine
 from shared.core.exception_handlers import register_exception_handlers
 from shared.core.logger import get_logger
 from shared.core.models import Base, init_models
+from shared.core.openapi import restore_error_example_nulls
 from user.presentation.routers.v1.router import router as user_router
 from auth.presentation.routers.v1.router import router as auth_router
 from board.presentation.routers.v1.board_router import router as board_router
@@ -64,3 +65,6 @@ app.include_router(user_router)
 app.include_router(auth_router)
 app.include_router(board_router)
 app.include_router(post_router)
+
+# Swagger 에러 예시에 errors·data(null) 필드 복원
+restore_error_example_nulls(app)

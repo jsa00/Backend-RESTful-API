@@ -1,0 +1,12 @@
+# 이미지에 넣지 않을 파일 (비밀값·로컬 환경·문서 이미지)
+.env
+.env.*
+.venv
+.git
+.github
+.claude
+docs
+**/__pycache__
+**/*.py[oc]
+.vscode
+.idea

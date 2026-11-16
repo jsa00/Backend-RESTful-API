@@ -1,0 +1,48 @@
+# 운영 환경: 게시판 API + PostgreSQL
+#   배포·재배포: ./scripts/deploy.sh  (또는 docker compose up -d --build)
+#   로그: docker compose logs -f api
+#   관리자 지정: docker compose exec api python src/scripts/promote_admin.py <이메일>
+#
+# 값은 같은 폴더의 .env에서 읽는다. (.env.example 참고)
+# - DB 포트(5432)는 외부에 열지 않고, api 컨테이너만 내부 네트워크(db:5432)로 접속한다.
+# - DB 데이터는 pgdata 볼륨에 저장돼 컨테이너를 다시 만들어도 유지된다.
+
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?.env에 POSTGRES_PASSWORD를 설정하세요}
+      POSTGRES_DB: ${POSTGRES_DB:-board}
+      TZ: UTC
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    image: board-api:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # .env의 DATABASE_URL(로컬 개발용 localhost)보다 우선한다.
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-board}
+    depends_on:
+      db:
+        condition: service_healthy  # DB가 접속 가능해진 뒤에 앱을 시작한다. (시작 시 테이블 생성)
+    ports:
+      - "${API_PORT:-80}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  pgdata:

@@ -16,6 +16,7 @@ from fastapi import FastAPI
 from wiring import wire_dependencies
 from shared.core.database import close_db, engine
 from shared.core.exception_handlers import register_exception_handlers
+from shared.core.health import router as health_router
 from shared.core.logger import get_logger
 from shared.core.models import Base, init_models
 from shared.core.openapi import restore_error_example_nulls
@@ -65,6 +66,7 @@ app.include_router(user_router)
 app.include_router(auth_router)
 app.include_router(board_router)
 app.include_router(post_router)
+app.include_router(health_router)
 
 # Swagger 에러 예시에 errors·data(null) 필드 복원
 restore_error_example_nulls(app)

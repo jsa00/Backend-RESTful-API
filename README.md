@@ -141,6 +141,6 @@ docker compose exec api python src/scripts/promote_admin.py admin@example.com
 
    최신 코드 받기 → 이미지 빌드·컨테이너 교체 → `/health` 통과까지 확인합니다. **재배포도 같은 명령**입니다.
 
-5. **확인**: `http://<퍼블릭 IP>/docs`, 관리자 계정 지정(위 3번)
+5. **확인**: `http://3.39.31.230/docs`, 관리자 계정 지정(위 3번)
 
 DB 데이터는 Docker 볼륨(`pgdata`)에 저장돼 재배포해도 유지됩니다. DB 포트(5432)는 외부에 열지 않습니다.

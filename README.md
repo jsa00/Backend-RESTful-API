@@ -3,7 +3,7 @@
 JWT 인증·인가를 적용한 FastAPI 게시판 백엔드 API입니다.
 게시판마다 비회원·회원·관리자 권한을 따로 설정할 수 있고, 회원은 본인 글만, 비회원은 작성 시 등록한 비밀번호로만 글을 수정·삭제할 수 있습니다.
 
-- 배포 주소: `http://<EC2 퍼블릭 IP>/docs` (배포 후 갱신)
+- 배포 주소: `http://3.39.31.230/docs`
 - API 문서: Swagger UI `/docs`, OpenAPI JSON `/openapi.json`
 
 ## 기술 스택
